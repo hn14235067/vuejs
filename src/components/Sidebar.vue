@@ -29,7 +29,8 @@
               to="/admin/coupons"
             >
               <i class="fas fa-box-open"></i>
-              優惠券</router-link>
+              優惠券
+            </router-link>
           </li>
         </ul>
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">

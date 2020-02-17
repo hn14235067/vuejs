@@ -13,7 +13,7 @@ import App from "./App";
 import router from "./router";
 import "bootstrap";
 import "./router/bus";
-import currencyFilter from "./filters/currency";
+import currency from "./filters/currency";
 import timeFilter from "./filters/timeFilter";
 
 Vue.config.productionTip = false;
@@ -23,7 +23,7 @@ Vue.use(VueI18n);
 axios.defaults.withCredentials = true;
 
 Vue.component("Loading", Loading);
-Vue.filter("currency", currencyFilter);
+Vue.filter("currency", currency);
 Vue.filter("timeFilter", timeFilter);
 
 const i18n = new VueI18n({

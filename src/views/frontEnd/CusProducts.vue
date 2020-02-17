@@ -1,10 +1,12 @@
 <template>
   <div>
+    <loading :active.sync="isLoading"></loading>
     <!-- Header -->
     <Header />
     <!-- Content -->
     <div class="container">
       <div class="row">
+        <!-- categories -->
         <div class="col-3 categories mt-4">
           <ul
             class="list-group"
@@ -14,18 +16,17 @@
 
             <li
               class="list-group-item d-flex justify-content-between align-items-center"
-              @click="getProducts"
+              @click="currentCategory = category"
             >
               {{ category }}
-              <span class="badge badge-primary badge-pill"></span>
             </li>
 
           </ul>
         </div>
         <!-- cards -->
         <div
-          class="col-3 card-group mt-4"
-          v-for="item in products"
+          class="col-3 col-sm-6 col-md-4 col-lg-3 card-group mt-4"
+          v-for="item in filterData"
           :key="item.id"
         >
           <div class="card">
@@ -37,14 +38,18 @@
             <div class="card-body">
               <h5 class="card-title"> {{ item.category }}</h5>
               <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <a
-                href="#"
-                class="btn btn-primary"
-              >Go somewhere</a>
+              <div class="row justify-content-center">
+                <a
+                  href="#"
+                  class="btn btn-primary center"
+                  @click="getProduct(item.id)"
+                >查看更多</a>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
 
     <!-- Footer -->
@@ -65,7 +70,7 @@
         products: [],
         count: 0,
         categories: ["全部商品"],
-        currentCategory: "",
+        currentCategory: "全部商品",
         currentPage: 0,
         carts: [],
         isLoading: false
@@ -76,56 +81,47 @@
       Footer,
       Alert
     },
-    // computed: {
-    //   filterData() {
-    //     const vm = this;
-    //     // step1. 先過濾出要的資料
-    //     let items = [];
-    //     vm.currentPage = 0;
-    //     if (vm.currentCategory !== "") {
-    //       items = vm.products.filter((item, i) => {
-    //         console.log(item);
-    //         return item.category === vm.currentCategory;
-    //       });
-    //     } else {
-    //       items = vm.products;
-    //     }
-    //     // step2. 依照過濾出的資料做分頁
-    //     // 分頁要點1: 總共有幾頁
-    //     // 分頁要點2: 每頁的內容
-    //     // 分頁要點3: 組成二維陣列 [[1...],[2...],[3...]]
-    //     console.log(vm.currentCategory);
-    //     const newProducts = [];
-    //     items.forEach((item, i) => {
-    //       if (i % 9 === 0) {
-    //         newProducts.push([]);
-    //       }
-    //       const page = parseInt(i / 9);
-    //       newProducts[page].push(item);
-    //     });
-    //     console.log("newProducts", newProducts);
-    //     return newProducts;
-    //   }
-    // },
+    computed: {
+      //以 category 作為分類資料的 filter
+      filterData() {
+        const vm = this;
+
+        let items = [];
+        if (vm.currentCategory !== "全部商品") {
+          vm.products.forEach(item => {
+            // console.log(item);
+            if (item.category === vm.currentCategory) {
+              items.push(item);
+            }
+          });
+        } else {
+          items = vm.products;
+        }
+        return items;
+      }
+    },
     methods: {
       getProducts() {
         const vm = this;
-        let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products/all`;
+        const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products/all`;
         vm.$http.get(api).then(response => {
+          vm.isLoading = false;
           vm.products = response.data.products;
           vm.getCategories();
         });
       },
       getCategories() {
         const vm = this;
-        // console.log(vm.products);
+        //取得所有的products類別 (不重複取)
         vm.products.forEach(item => {
           if (!vm.categories.includes(item.category)) {
-            console.log(vm.categories.indexOf(item.category));
             vm.categories.push(item.category);
           }
         });
-        console.log(vm.categories);
+      },
+      getProduct(id) {
+        const vm = this;
+        vm.$router.push(`/product/${id}`);
       }
     },
     created() {

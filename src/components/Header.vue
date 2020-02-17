@@ -46,6 +46,7 @@
             class="btn btn-sm btn-cart btn-light"
             data-toggle="dropdown"
             data-flip="false"
+            @click="getCarts"
           >
             <i
               class="fa fa-shopping-cart text-dark fa-2x"
@@ -61,53 +62,30 @@
             <h6>已選擇商品</h6>
             <table class="table table-sm">
               <tbody>
-                <tr>
-                  <td class="align-middle text-center">
-                    <a
-                      href="#removeModal"
-                      class="text-muted"
-                      data-toggle="modal"
-                      data-title="刪除 金牌西裝 1 件"
-                    >
-                      <i
-                        class="fa fa-trash-o"
-                        aria-hidden="true"
-                      ></i>
-                    </a>
+                <tr
+                  v-for="item in cartItems"
+                  :key="item.id"
+                >
+                  <td class="align-middle">
+                    <i
+                      class="btn far fa-trash-alt"
+                      @click="deleteCartItem(item.id)"
+                    ></i>
                   </td>
-                  <td class="align-middle">金牌西裝</td>
-                  <td class="align-middle">1 件</td>
-                  <td class="align-middle text-right">$520</td>
-                </tr>
-                <tr>
-                  <td class="align-middle text-center">
-                    <a
-                      href="#removeModal"
-                      class="text-muted"
-                      data-toggle="modal"
-                      data-title="刪除 金牌女裝 1 件"
-                    >
-                      <i
-                        class="fa fa-trash-o"
-                        aria-hidden="true"
-                      ></i>
-                    </a>
-                  </td>
-                  <td class="align-middle">金牌女裝</td>
-                  <td class="align-middle">1 件</td>
-                  <td class="align-middle text-right">$480</td>
+                  <td class="align-middle"> {{ item.product.title }}</td>
+                  <td class="align-middle">{{ item.qty }}</td>
+                  <td class="align-middle text-right">{{ item.product.price * item.qty  }}</td>
                 </tr>
               </tbody>
             </table>
-            <a
-              href="shoppingCart-checkout.html"
-              class="btn btn-primary btn-block"
-            >
-              <i
-                class="fa fa-cart-plus"
-                aria-hidden="true"
-              ></i> 結帳去
-            </a>
+            <router-link to="/checkout">
+              <a class="btn btn-primary btn-block text-white">
+                <i
+                  class="fa fa-cart-plus"
+                  aria-hidden="true"
+                ></i> 結帳去
+              </a>
+            </router-link>
           </div>
         </div>
 
@@ -121,6 +99,32 @@
 
 <script>
   export default {
-    name: "Header"
+    name: "Header",
+    data() {
+      return {
+        cartItems: []
+      };
+    },
+    methods: {
+      getCarts() {
+        const vm = this;
+        const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`;
+        vm.$http.get(api).then(response => {
+          vm.cartItems = response.data.data.carts;
+          console.log(response.data.data.carts);
+        });
+      },
+      deleteCartItem(id) {
+        const vm = this;
+        const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart/${id}`;
+        vm.$http.delete(api).then(response => {
+          if (response.data.success) {
+            vm.getCarts();
+          } else {
+            console.log("刪除失敗");
+          }
+        });
+      }
+    }
   };
 </script>
